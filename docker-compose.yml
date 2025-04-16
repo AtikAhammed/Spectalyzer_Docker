@@ -1,0 +1,55 @@
+name: Spectalyzer
+
+services:
+
+  mongo: 
+    image: mongo:7.0.12
+  
+   
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - Spectalyzer
+  api:
+    build: 
+      context: ./SpectalyzerBackend-main
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: ./SpectalyzerBackend-main/.env
+    volumes:
+      - ./SpectalyzerBackend-main:/app
+      - /app/node_modules
+    networks:
+      - Spectalyzer
+    ports:
+      - 8000:8000
+
+    depends_on:
+      - mongo
+
+  frontend:
+    build: 
+      context: ./frontend_spectalyzer-main
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    
+      
+    volumes:
+      - ./frontend_spectalyzer-main:/app
+      - /app/node_modules
+    networks:
+      - Spectalyzer
+    ports:
+      - 5173:5173
+    
+    depends_on:
+      - api
+
+
+
+
+volumes:
+  mongo_data:
+networks:
+  Spectalyzer:
+    driver: bridge
